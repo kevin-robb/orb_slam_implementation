@@ -6,4 +6,4 @@ Check out this link for a similar example:
 
 ![dataset_preview](https://user-images.githubusercontent.com/83112082/161122619-1058b1d1-7834-442d-bf6a-d888db4a47ef.gif)
 
-[Extracting rosbag images to jpegs or mp4](http://wiki.ros.org/rosbag/Tutorials/Exporting%20image%20and%20video%20data)
+[How to export image and video data from a bag file](http://wiki.ros.org/rosbag/Tutorials/Exporting%20image%20and%20video%20data)
