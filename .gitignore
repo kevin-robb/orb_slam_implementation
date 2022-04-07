@@ -1,5 +1,7 @@
 .vscode/
 
+.ipynb_checkpoints/
+
 devel/
 logs/
 build/
