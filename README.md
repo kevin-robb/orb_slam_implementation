@@ -95,6 +95,26 @@ Make sure to re-source the bashrc to reflect its changes.
 
     source ~/.bashrc
 
+Next, we need to tell ORB SLAM to use C++14 instead of C++11. Edit the CMakeLists.txt in both `~/Dev/ORB_SLAM3` and `~/Dev/ORB_SLAM3/Examples/ROS/ORB_SLAM3` and change references to C++11 to C++14. Additionally, in the latter we must add the line `${PROJECT_SOURCE_DIR}/../../../Thirdparty` to the include_directories() section.
+
+To be extra sure this will work, we do the following, which will get everything to use the right version of C++.
+
+    cd ~/Dev/ORB_SLAM3
+    sed -i 's/++11/++14/g' CMakeLists.txt
+    cd ThirdParty/g2o
+    sed -i 's/++11/++14/g' CMakeLists.txt
+    cd ../Sophus
+    sed -i 's/++11/++14/g' CMakeLists.txt
+    cd ../D*
+    sed -i 's/++11/++14/g' CMakeLists.txt
+    cd ../Examples/ROS/ORB_SLAM3
+    sed -i 's/++11/++14/g' CMakeLists.txt
+
+Now we can build ORB SLAM.
+
+    cd ~/Dev/ORB_SLAM3
+    ./build.sh
+
 Next, we will build ORB-SLAM for ROS.
 
     cd ~/Dev/ORB_SLAM3/Examples/ROS/ORB_SLAM3
@@ -105,4 +125,4 @@ Next, we will build ORB-SLAM for ROS.
 
 ---
 
-I'm having errors at the very last `make -j` command. I've changed the C++ version from 11 to 14 in the CMakeLists in both the `ORB_SLAM3` and the `ORB_SLAM3/Examples/ROS/ORB_SLAM3` directories. I've also added the line `${PROJECT_SOURCE_DIR}/../../../Thirdparty` to the latter CMakeLists in the include_directories() section, since the error seems to be that the config.h cannot be found for g2o in ThirdParty. 
+I'm having errors at the very last `make -j` command. Could be an issue with CMake policy CMP0011, or something else. The regular build works, but the ROS build is causing problems.
