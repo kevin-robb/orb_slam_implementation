@@ -105,7 +105,7 @@ To be extra sure this will work, we do the following, which will get everything 
     sed -i 's/++11/++14/g' CMakeLists.txt
     cd ../Sophus
     sed -i 's/++11/++14/g' CMakeLists.txt
-    cd ../D*
+    cd ../DBoW2
     sed -i 's/++11/++14/g' CMakeLists.txt
     cd ../Examples/ROS/ORB_SLAM3
     sed -i 's/++11/++14/g' CMakeLists.txt
@@ -115,6 +115,8 @@ Now we can build ORB SLAM.
     cd ~/Dev/ORB_SLAM3
     ./build.sh
 
+---
+
 Next, we will build ORB-SLAM for ROS.
 
     cd ~/Dev/ORB_SLAM3/Examples/ROS/ORB_SLAM3
@@ -123,6 +125,28 @@ Next, we will build ORB-SLAM for ROS.
     cmake .. -DROS_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=`which python3`
     make -j
 
+I'm having errors at the very last `make -j` command. Could be an issue with CMake policy CMP0011, or something else. The regular build works, but the ROS build is causing problems.
+
 ---
 
-I'm having errors at the very last `make -j` command. Could be an issue with CMake policy CMP0011, or something else. The regular build works, but the ROS build is causing problems.
+To run an example,
+
+    cd ~/Dev/ORB_SLAM3/Examples/Stereo
+
+Ensure dynamic library dependencies are up to date.
+
+    sudo ldconfig
+
+Now we can run an example! I've downloaded the grayscale imageset for the KITTI dataset as a test.
+
+    ./stereo_kitti ../../Vocabulary/ORBvoc.txt ../KITTI00-02.yaml ../../../../Courseworks/big_data/KITTI/data_odometry_gray/dataset/sequences/00/image_0
+
+    ./stereo_kitti ../../Vocabulary/ORBvoc.txt ../KITTI00-02.yaml ../../../data/KITTI/data_odometry_gray/dataset/sequences/00/image_0
+
+---
+
+Arvind checked my CMakeLists.txt in the main ORBSLAM directory, and it looks the same, at least for all the C++ version lines. From within the ORBSLAM directory, run
+
+    ./Examples/Monocular/mono_tum ./Vocabulary/ORBvoc.txt ./Examples/Monocular/thermal.yaml /media/kevin-robb/MyPassport/NEUFR_data/2021-11-08_IR_cart_24hr/ir_cart_2021-11-09-14-19-05
+
+    ./Examples/Monocular/mono_tum ./Vocabulary/ORBvoc.txt ./Examples/Monocular/thermal.yaml ../data/ir_cart_2021-11-09-14-19-05
