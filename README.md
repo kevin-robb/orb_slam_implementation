@@ -9,144 +9,188 @@ Check out this link for a similar example:
 [How to export image and video data from a bag file](http://wiki.ros.org/rosbag/Tutorials/Exporting%20image%20and%20video%20data)
 
 
-# ORB-SLAM-3 Setup on Ubuntu 20.04
+# ORB-SLAM-3 Setup
 
-First ensure that Python is installed on your system, and that you have the `numpy` library installed. We will be using ROS Noetic in this project, so that should be installed as well.
+You will have the best chance of ORB SLAM 3 working if you follow these directions exactly, including using a fresh Ubuntu 20.04 install on a virtual machine.
 
-## Install all library dependencies.
+Ensure your machine has at least 16GB of RAM.
+
+Install the (VMware Workstation Player)[https://www.vmware.com/hk/products/workstation-player.html] virtual machine. I did this on my Windows desktop.
+
+Download the (Ubuntu 20.04 iso)[https://ubuntu.com/download/desktop].
+
+After setting up the OS, you may want to connect a USB device, such as a drive you have data stored on. You can do this via the top-left tab, but by default all options are grayed out. To fix this, power down the VM, navigate to your VM (mine is in `Documents/Virtual Machines`), and open the .vmx file with a text editor. Delete the following line
+
+    usb.restrictions.defaultAllow = “FALSE”
+
+Now reopen the VM through the VMware launcher, and USB devices should be selectable.
+
+## Install dependencies
 
     sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"
     sudo apt update
-
     sudo apt-get install build-essential
     sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
-
     sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev libjasper-dev
-
     sudo apt-get install libglew-dev libboost-all-dev libssl-dev
-
     sudo apt install libeigen3-dev
+    sudo apt-get install libcanberra-gtk-module
 
 ## Install OpenCV
+You will need two versions of OpenCV installed, 4.2.0 and 3.2.0. First install 4.2.0:
 
     cd ~
-    mkdir Dev
-    cd Dev
-
-In the `Dev` directory, git clone the opencv repository from [this link](https://github.com/opencv/opencv). Using SSH, this looks like `git clone git@github.com:opencv/opencv.git`.
-
-Next, open the header file with
-
+    mkdir Dev && cd Dev
+    git clone https://github.com/opencv/opencv.git
     cd opencv
-    nano ./modules/videoio/src/cap_ffmpeg_impl.hpp
+    git checkout 4.2.0
 
-In this file, paste the following lines at the top.
+Run `nano ./modules/videoio/src/cap_ffmpeg_impl.hpp` or your favorite text editor and add the following three lines at the top of the file:
 
     #define AV_CODEC_FLAG_GLOBAL_HEADER (1 << 22)
     #define CODEC_FLAG_GLOBAL_HEADER AV_CODEC_FLAG_GLOBAL_HEADER
     #define AVFMT_RAWPICTURE 0x0020
 
-Save and close the file. Now, build it with the following set of commands.
+Now build it.
 
     mkdir build
     cd build
-    cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CUDA=OFF -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_PRECOMPILED_HEADERS=OFF ..
+    cmake -D CMAKE_BUILD_TYPE=Release -D WITH_CUDA=OFF -D CMAKE_INSTALL_PREFIX=/usr/local ..
+    make -j 3
+    sudo make install
+    cd ..
+    mv opencv opencv4
+
+Now install the older version:
+
+    cd ~
+    mkdir Dev && cd Dev
+    git clone https://github.com/opencv/opencv.git
+    cd opencv
+    git checkout 3.2.0
+
+Similarly, run `nano ./modules/videoio/src/cap_ffmpeg_impl.hpp` or your favorite text editor and add the following three lines at the top of the file:
+
+    #define AV_CODEC_FLAG_GLOBAL_HEADER (1 << 22)
+    #define CODEC_FLAG_GLOBAL_HEADER AV_CODEC_FLAG_GLOBAL_HEADER
+    #define AVFMT_RAWPICTURE 0x0020
+
+Now build it.
+
+    mkdir build
+    cd build
+    cmake -D CMAKE_BUILD_TYPE=Release -D WITH_CUDA=OFF -D CMAKE_INSTALL_PREFIX=/usr/local ..
     make -j 3
     sudo make install
 
 ## Install Pangolin
+We will use an older commit version of Pangolin for compatibility.
 
     cd ~/Dev
-
-In the `Dev` directory, git clone the pangolin repository from [this link](https://github.com/stevenlovegrove/Pangolin). Using SSH, this looks like `git clone --recursive git@github.com:stevenlovegrove/Pangolin.git`.
-
-    cd Pangolin
-    mkdir build
-    cd build
-    cmake ..
-    cmake --build .
-    make -j 3
+    git clone https://github.com/stevenlovegrove/Pangolin.git
+    cd Pangolin 
+    git checkout 86eb4975fc4fc8b5d92148c2e370045ae9bf9f5d
+    mkdir build 
+    cd build 
+    cmake .. -D CMAKE_BUILD_TYPE=Release 
+    make -j 3 
     sudo make install
 
-## Install Eigen C++ Library
-
-Download the latest release from [this link](http://eigen.tuxfamily.org/) as a zip file. As of writing this, this is version 3.4.0. Extract it, and move the resulting folder to `~/Dev`. Then run the following commands.
-
-    cd ~/Dev/eigen-3.4.0/
-    mkdir build
-    cd build
-    cmake ..
-    sudo make install
-
-## Install ORB-SLAM-3
-
-The [official ORB_SLAM3 repo](https://github.com/UZ-SLAMLab/ORB_SLAM3) at the time of me writing this does not work with ROS, at least when following their README. There is a [forked repo](https://github.com/nindanaoto/ORB_SLAM3) that fixes the issues, so we will use it instead.
-
-Navigate once again to `~/Dev`, and git clone the repo.
+## Install ORB_SLAM3
+We will use an older version as well.
 
     cd ~/Dev
-    git clone git@github.com:nindanaoto/ORB_SLAM3.git
+    git clone https://github.com/UZ-SLAMLab/ORB_SLAM3.git 
+    cd ORB_SLAM3
+    git checkout ef9784101fbd28506b52f233315541ef8ba7af57
 
-To make ORB SLAM work with ROS, we need to edit the bashrc with `nano ~/.bashrc`, and add the following line at the end:
+This version has some compilation errors that we need to fix.
+Run `nano ./include/LoopClosing.h` or your favorite text editor and change line 51 from 
 
-    export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:~/Dev/ORB_SLAM3/Examples/ROS
+    Eigen::aligned_allocator<std::pair<const KeyFrame*, g2o::Sim3> > > KeyFrameAndPose;
 
-Make sure to re-source the bashrc to reflect its changes.
+to
 
-    source ~/.bashrc
+    Eigen::aligned_allocator<std::pair<KeyFrame *const, g2o::Sim3> > > KeyFrameAndPose;
 
-Next, we need to tell ORB SLAM to use C++14 instead of C++11. Edit the CMakeLists.txt in both `~/Dev/ORB_SLAM3` and `~/Dev/ORB_SLAM3/Examples/ROS/ORB_SLAM3` and change references to C++11 to C++14. Additionally, in the latter we must add the line `${PROJECT_SOURCE_DIR}/../../../Thirdparty` to the include_directories() section.
+In `CMakeLists.txt`, change the OpenCV version line to
 
-To be extra sure this will work, we do the following, which will get everything to use the right version of C++.
+    find_package(OpenCV 3.2)
 
-    cd ~/Dev/ORB_SLAM3
-    sed -i 's/++11/++14/g' CMakeLists.txt
-    cd ThirdParty/g2o
-    sed -i 's/++11/++14/g' CMakeLists.txt
-    cd ../Sophus
-    sed -i 's/++11/++14/g' CMakeLists.txt
-    cd ../DBoW2
-    sed -i 's/++11/++14/g' CMakeLists.txt
-    cd ../Examples/ROS/ORB_SLAM3
-    sed -i 's/++11/++14/g' CMakeLists.txt
+We also need to make changes to `System.cc`. Open it with `nano ./src/System.cc` or your favorite text editor, and change both lines 584 and 701 from
 
-Now we can build ORB SLAM.
+    Map* pBiggerMap;
 
-    cd ~/Dev/ORB_SLAM3
+to
+
+    Map* pBiggerMap = nullptr;
+
+This latter error allowed the examples to run fine, but they caused a segmentation fault at the very end when trying to save the map.
+
+Now all compilation errors should be fixed, and we can build ORB_SLAM3. Run their provided shell script `build.sh`, which will build all of the third party programs as well as ORB_SLAM3 itself. 
+
     ./build.sh
 
----
+It will likely show errors, but just run it a few times without changing anything, and it should succeed after a few attempts.
 
-Next, we will build ORB-SLAM for ROS.
+## Download Example Data
+We will use the EuRoC MH_01 easy dataset.
 
-    cd ~/Dev/ORB_SLAM3/Examples/ROS/ORB_SLAM3
-    mkdir build
-    cd build
-    cmake .. -DROS_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=`which python3`
-    make -j
+    cd ~
+    mkdir -p Datasets/EuRoc
+    cd Datasets/EuRoc/
+    wget -c http://robotics.ethz.ch/~asl-datasets/ijrr_euroc_mav_dataset/machine_hall/MH_01_easy/MH_01_easy.zip
+    mkdir MH01
+    unzip MH_01_easy.zip -d MH01/
 
-I'm having errors at the very last `make -j` command. Could be an issue with CMake policy CMP0011, or something else. The regular build works, but the ROS build is causing problems.
+Two of the images in my download were corrupted, so for the program to run successfully, I replaced each of these with their nearest frame.
 
----
+    cd ~/Datasets/EuRoc/MH01/mav0/cam0/data
+    rm 1403636689613555456.png
+    cp 1403636689663555584.png 1403636689613555456.png
+    rm 1403636722213555456.png
+    cp 1403636722263555584.png 1403636722213555456.png
 
-To run an example,
+If the example exits with a segmentation fault, retry the unzip step for your data, and pay attention for an image failing with a bad CRC; the image is likely corrupted and should be replaced in the manner I've done here. Note that each image must appear by name, so corrupt images must be replaced by an adjacent frame rather than simply deleted.
 
-    cd ~/Dev/ORB_SLAM3/Examples/Stereo
+## Run Simulation with Examples
 
-Ensure dynamic library dependencies are up to date.
+    cd ~/Dev/ORB_SLAM3
 
-    sudo ldconfig
+Then, choose one of the following to run. A map viewer as well as an image viewer should appear after it finishes setup.
 
-Now we can run an example! I've downloaded the grayscale imageset for the KITTI dataset as a test.
+    # Mono
+    ./Examples/Monocular/mono_euroc ./Vocabulary/ORBvoc.txt ./Examples/Monocular/EuRoC.yaml ~/Datasets/EuRoc/MH01 ./Examples/Monocular/EuRoC_TimeStamps/MH01.txt dataset-MH01_mono
 
-    ./stereo_kitti ../../Vocabulary/ORBvoc.txt ../KITTI00-02.yaml ../../../../Courseworks/big_data/KITTI/data_odometry_gray/dataset/sequences/00/image_0
+    # Mono + Inertial
+    ./Examples/Monocular-Inertial/mono_inertial_euroc ./Vocabulary/ORBvoc.txt ./Examples/Monocular-Inertial/EuRoC.yaml ~/Datasets/EuRoc/MH01 ./Examples/Monocular-Inertial/EuRoC_TimeStamps/MH01.txt dataset-MH01_monoi
 
-    ./stereo_kitti ../../Vocabulary/ORBvoc.txt ../KITTI00-02.yaml ../../../data/KITTI/data_odometry_gray/dataset/sequences/00/image_0
+    # Stereo
+    ./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ./Examples/Stereo/EuRoC.yaml ~/Datasets/EuRoc/MH01 ./Examples/Stereo/EuRoC_TimeStamps/MH01.txt dataset-MH01_stereo
 
----
+    # Stereo + Inertial
+    ./Examples/Stereo-Inertial/stereo_inertial_euroc ./Vocabulary/ORBvoc.txt ./Examples/Stereo-Inertial/EuRoC.yaml ~/Datasets/EuRoc/MH01 ./Examples/Stereo-Inertial/EuRoC_TimeStamps/MH01.txt dataset-MH01_stereoi
 
-Arvind checked my CMakeLists.txt in the main ORBSLAM directory, and it looks the same, at least for all the C++ version lines. From within the ORBSLAM directory, run
+## Validating Estimates vs Ground Truth
+We're using python 2.7, and need numpy and matplotlib. For this, we need the 2.7 version of pip.
 
-    ./Examples/Monocular/mono_tum ./Vocabulary/ORBvoc.txt ./Examples/Monocular/thermal.yaml /media/kevin-robb/MyPassport/NEUFR_data/2021-11-08_IR_cart_24hr/ir_cart_2021-11-09-14-19-05
+    sudo apt install curl
+    cd ~/Desktop
+    curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+    sudo python2 get-pip.py
+    pip2.7 install numpy matplotlib
 
-    ./Examples/Monocular/mono_tum ./Vocabulary/ORBvoc.txt ./Examples/Monocular/thermal.yaml ../data/ir_cart_2021-11-09-14-19-05
+Now run and plot the ground truth:
+
+    cd ~/Dev/ORB_SLAM3
+
+    ./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ./Examples/Stereo/EuRoC.yaml ~/Datasets/EuRoc/MH01 ./Examples/Stereo/EuRoC_TimeStamps/MH01.txt dataset-MH01_stereo
+
+And now run and plot the estimate compared to ground truth:
+
+    cd ~/Dev/ORB_SLAM3
+
+    python evaluation/evaluate_ate_scale.py evaluation/Ground_truth/EuRoC_left_cam/MH01_GT.txt f_dataset-MH01_stereo.txt --plot MH01_stereo.pdf
+
+Open the pdf `MH01_stereo.pdf` to see the results. This can be done with the command `evince MH01_stereo.pdf`.
+
