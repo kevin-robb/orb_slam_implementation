@@ -1,23 +1,20 @@
 # eece5554-vslam
 Final group project for EECE-5554 Robotics Sensing &amp; Navigation, involving Visual SLAM using data from the NUANCE autonomous car.
-
+<!-- 
 Check out this link for a similar example:
-[Monocular Visual Odometry using OpenCV](https://avisingh599.github.io/vision/monocular-vo/)
+[Monocular Visual Odometry using OpenCV](https://avisingh599.github.io/vision/monocular-vo/) -->
 
 ![dataset_preview](https://user-images.githubusercontent.com/83112082/161122619-1058b1d1-7834-442d-bf6a-d888db4a47ef.gif)
 
-[How to export image and video data from a bag file](http://wiki.ros.org/rosbag/Tutorials/Exporting%20image%20and%20video%20data)
-
-
 # ORB-SLAM-3 Setup
 
-You will have the best chance of ORB SLAM 3 working if you follow these directions exactly, including using a fresh Ubuntu 20.04 install on a virtual machine.
+You will have the best chance of ORB SLAM 3 working if you follow these directions exactly, including using a fresh Ubuntu 20.04 install on a newly created virtual machine.
 
 Ensure your machine has at least 16GB of RAM.
 
-Install the (VMware Workstation Player)[https://www.vmware.com/hk/products/workstation-player.html] virtual machine. I did this on my Windows desktop.
+Install the [VMware Workstation Player](https://www.vmware.com/hk/products/workstation-player.html) virtual machine. I did this on my Windows desktop PC. During setup, customize the hardware to use the max amount of recommended RAM, and 4 processor cores.
 
-Download the (Ubuntu 20.04 iso)[https://ubuntu.com/download/desktop].
+Download the [Ubuntu 20.04 iso](https://ubuntu.com/download/desktop).
 
 After setting up the OS, you may want to connect a USB device, such as a drive you have data stored on. You can do this via the top-left tab, but by default all options are grayed out. To fix this, power down the VM, navigate to your VM (mine is in `Documents/Virtual Machines`), and open the .vmx file with a text editor. Delete the following line
 
@@ -193,4 +190,8 @@ And now run and plot the estimate compared to ground truth:
     python evaluation/evaluate_ate_scale.py evaluation/Ground_truth/EuRoC_left_cam/MH01_GT.txt f_dataset-MH01_stereo.txt --plot MH01_stereo.pdf
 
 Open the pdf `MH01_stereo.pdf` to see the results. This can be done with the command `evince MH01_stereo.pdf`.
+
+
+# Using Our Own Data
+Since we have not setup the ROS-compatible part of ORB_SLAM3, the only input we can use is a folder of images, with a corresponding txt file of timestamps. To convert a rosbag of image data into this format, follow [this guide](http://wiki.ros.org/rosbag/Tutorials/Exporting%20image%20and%20video%20data).
 
