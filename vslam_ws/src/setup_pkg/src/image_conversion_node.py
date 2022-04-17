@@ -43,11 +43,10 @@ def get_cam1(msg):
     cam1_index += 1
     # wait if necessary until cam0 has come in.
     time = None
-    while time is None:
-        try:
-            time = timestamps[cam1_index]
-        except:
-            rospy.sleep(0.05)
+    while len(timestamps) < 1:
+        rospy.sleep(0.05)
+    time = timestamps[cam1_index]
+    
     try:
         # Convert the Image msg to OpenCV2 object.
         cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8") #bgr8

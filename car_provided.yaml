@@ -13,8 +13,8 @@ Camera.k2: 0.0
 Camera.p1: 0.0
 Camera.p2: 0.0
 
-Camera.width: 1536
-Camera.height: 2048
+Camera.height: 1536
+Camera.width: 2048
 
 # Extra params needed, from Stereo example EuRoC.yaml.
 Camera.bFishEye: 0
@@ -25,7 +25,7 @@ Camera.bf: 300.5049307
 ThDepth: 35.0
 
 # Camera frames per second 
-Camera.fps: 20
+#Camera.fps: 30
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
@@ -91,6 +91,7 @@ RIGHT.P:  !!opencv-matrix
    cols: 4
    dt: d
    data: [703.910323, 0.0, 815.113302, 0.0, 0.0, 958.319231, 636.871993, 0.0, 0.0, 0.0, 1.0, 0.0]
+# NOTE may need -0.3288878 as Tx (4th element) of P matrix.
 
 #--------------------------------------------------------------------------------------------
 # ORB Parameters
