@@ -193,14 +193,49 @@ Open the pdf `MH01_stereo.pdf` to see the results. This can be done with the com
 
 
 # Using Our Own Data
+I've done all of this section on a separate computer running Ubuntu 20.04 with ROS Noetic, and then copied the files onto an external storage drive, which I use with my virtual machine to run ORB_SLAM3. I would recommend doing this as well, rather than installing ROS onto the VM and potentially breaking things with version conflicts.
+
 ## Converting from Rosbag to Image Set
-Since we have not setup the ROS-compatible part of ORB_SLAM3, the only input we can use is a folder of images, with a corresponding txt file of timestamps. To convert a rosbag of image data into this format, follow [this guide](http://wiki.ros.org/rosbag/Tutorials/Exporting%20image%20and%20video%20data).
+Since we have not setup the ROS-compatible part of ORB_SLAM3, the only input we can use is a folder of images, with a corresponding txt file of timestamps. To convert a rosbag of image data into this format, use the `image_conversion_node.py` I've created in the `setup_pkg`. Edit the node as needed to change the image topics, or the save location.
 
-I've taken the provided rosbag called `car_IR_RGB_lidar.bag`, renamed it to `car_provided.bag`, and extracted images from the two cameras, on topics `/camera_array/cam0/image_raw` and `/camera_array/cam1/image_raw`. These are stored in a directory `car_provided`, with subdirectories `cam0` and `cam1` containing the respective sets of images.
+This node assumes a stereo setup, and will save images for each camera to their own directory, named by the timestamp. It ensures these timestamped names are synched, and that the timestamp itself is saved to a txt file. These are all required by ORB_SLAM3.
 
-We also need a timestamps file, so for the sake of testing I will make a file containing integers 1 to the number of images in the set, providing the matching filename for each. Run the included python script with `python3 create_timestamps.py` after setting the `number_of_images` value in the code to the length of your image set.
+Before running the node, create the directories the images will be saved to. If nothing has been changed, this can be done with
 
-In the future, the true timestamps can be extracted from the stamped time in the header of each camera's info messages, which are published to `/camera_array/cam0/camera_info` and `/camera_array/cam1/camera_info`, respectively.
+    mkdir -p big_data/car_provided/car_images/mav0/cam0/data
+    mkdir -p big_data/car_provided/car_images/mav0/cam1/data
+
+Also make sure to build the workspace by running `catkin_make` in the `vslam_ws` directory.
+
+Then we can export the images by running `roscore` in one terminal, starting the node in another terminal with `rosrun setup_pkg image_conversion_node.py`, and then replaying the rosbag in a third terminal with `rosbag play car_provided.bag`.
+Ensure your working directory is the main directory of this repository when running the node, so that the images will save correctly.
 
 ## Stereo Rectification Parameters
-We need to provide ORB_SLAM3 a .yaml file containing calibration parameters for the cameras. Much of this information, including the D, K, R, and P matrices, is published on the `/camera_array/cam0/camera_info` and `/camera_array/cam1/camera_info` topics, so we can get it from echoing these topics and recording an output.
+We also need to provide ORB_SLAM3 a .yaml file containing calibration parameters for the cameras. Much of this information, including the D, K, R, and P matrices, is published on the `/camera_array/cam0/camera_info` and `/camera_array/cam1/camera_info` topics, so we can get it from echoing these topics and recording an output.
+
+The .yaml file I created for the provided NUance car dataset is included in this repository as `car_provided.yaml`.
+
+## Running ORB_SLAM3 with Our Data
+We now have everything we need to run ORB_SLAM3 with this dataset. If you performed this section on a different machine, now copy the relevant files onto an external drive to use in the virtual machine.
+
+My drive is called `ROBB0005`, and my directory structure looks like:
+
+    ROBB0005/
+      car_provided/
+        car_provided.yaml
+        timestamps.txt
+        car_images/
+          mav0/
+            cam0/
+              data/
+                * all the images
+            cam1/
+              data/
+                * all the images
+
+So on the virtual machine, to run ORB_SLAM3 I do the following:
+
+    cd ~/Dev/ORB_SLAM3
+
+    ./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/car_provided/car_provided.yaml ~/../../media/kevinrobb/ROBB0005/car_provided/car_images ~/../../media/kevinrobb/ROBB0005/car_provided/timestamps.txt dataset-car_provided_stereo
+
