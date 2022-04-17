@@ -193,12 +193,14 @@ Open the pdf `MH01_stereo.pdf` to see the results. This can be done with the com
 
 
 # Using Our Own Data
+## Converting from Rosbag to Image Set
 Since we have not setup the ROS-compatible part of ORB_SLAM3, the only input we can use is a folder of images, with a corresponding txt file of timestamps. To convert a rosbag of image data into this format, follow [this guide](http://wiki.ros.org/rosbag/Tutorials/Exporting%20image%20and%20video%20data).
 
 I've taken the provided rosbag called `car_IR_RGB_lidar.bag`, renamed it to `car_provided.bag`, and extracted images from the two cameras, on topics `/camera_array/cam0/image_raw` and `/camera_array/cam1/image_raw`. These are stored in a directory `car_provided`, with subdirectories `cam0` and `cam1` containing the respective sets of images.
 
-We also need a timestamps file, so for the sake of testing I will make a file containing integers 1 to the number of images in the set:
-
-    seq 1 5252 > timestamps.txt
+We also need a timestamps file, so for the sake of testing I will make a file containing integers 1 to the number of images in the set, providing the matching filename for each. Run the included python script with `python3 create_timestamps.py` after setting the `number_of_images` value in the code to the length of your image set.
 
 In the future, the true timestamps can be extracted from the stamped time in the header of each camera's info messages, which are published to `/camera_array/cam0/camera_info` and `/camera_array/cam1/camera_info`, respectively.
+
+## Stereo Rectification Parameters
+We need to provide ORB_SLAM3 a .yaml file containing calibration parameters for the cameras. Much of this information, including the D, K, R, and P matrices, is published on the `/camera_array/cam0/camera_info` and `/camera_array/cam1/camera_info` topics, so we can get it from echoing these topics and recording an output.
