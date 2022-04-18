@@ -239,3 +239,7 @@ So on the virtual machine, to run ORB_SLAM3 I do the following:
 
     ./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/car_provided/car_provided.yaml ~/../../media/kevinrobb/ROBB0005/car_provided/car_images ~/../../media/kevinrobb/ROBB0005/car_provided/timestamps.txt dataset-car_provided_stereo
 
+We can alternatively run this in Monocular rather than Stereo, in which case only the cam0 image feed will be used.
+
+    ./Examples/Monocular/mono_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/car_provided/car_provided.yaml ~/../../media/kevinrobb/ROBB0005/car_provided/car_images ~/../../media/kevinrobb/ROBB0005/car_provided/timestamps.txt dataset-car_provided_mono
+
