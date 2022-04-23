@@ -1,0 +1,69 @@
+Specifications
+
+Rgb cameras: 
+
+Flir blackfly s 5MP colour camera 
+Both cameras are hardware synced to trigger at same time.
+Calibration data is available in camera_info msgs
+
+IR Camera
+
+FLIR ADK KIT IR camera
+Lens less model
+75 deg FOV
+640X512 Resolution
+60FPS
+
+Calibration
+
+Camera.fx: 5.24888150200348832e+02
+Camera.fy: 5.21776791343664968e+02
+Camera.cx: 3.25596989785447420e+02
+Camera.cy: 2.42392342491041603e+02
+
+Camera.k1: -4.70302508060718438e-01
+Camera.k2: 3.01057860458473880e-01
+Camera.p1: 4.68835914496582538e-03
+Camera.p2: 1.65573977268025185e-03
+
+Camera.width: 640
+Camera.height: 512
+
+Lidar
+Velodyne vlp-16 is used as lidar. 
+The dataset contains 2 VLP-16’s mounted on nuance car.
+
+IMU
+
+VN-100 imu is mounted on car
+
+rosbag info
+
+path:        morning_stereo_rgb_ir_lidar_gps.bag
+version:     2.0
+duration:    10:02s (602s)
+start:       Feb 01 2020 10:51:56.12 (1580572316.12)
+end:         Feb 01 2020 11:01:58.51 (1580572918.51)
+size:        54.9 GB
+messages:    181114
+compression: none [27252/27252 chunks]
+types:       sensor_msgs/CameraInfo  [c9a58c1b0b154e0e6da7578cb991d214]
+             sensor_msgs/Image       [060021388200f6f0f447d0fcd9c64743]
+             sensor_msgs/Imu         [6a62c6daae103f4ff57a132d6f95cec2]
+             sensor_msgs/NavSatFix   [2d3a8cd499b9b4a0249fb98fd05cfa48]
+             sensor_msgs/PointCloud2 [1158d486dd51d683ce2f1be655c3c181]
+             tf2_msgs/TFMessage      [94810edda583a504dfda3829e70d7eec]
+topics:      /camera_array/cam0/camera_info    5252 msgs    : sensor_msgs/CameraInfo 
+             /camera_array/cam0/image_raw      5252 msgs    : sensor_msgs/Image      
+             /camera_array/cam1/camera_info    5252 msgs    : sensor_msgs/CameraInfo 
+             /camera_array/cam1/image_raw      5252 msgs    : sensor_msgs/Image      
+             /flir_boson/camera_info          36120 msgs    : sensor_msgs/CameraInfo 
+             /flir_boson/image_raw            36120 msgs    : sensor_msgs/Image      
+             /imu/imu                         60237 msgs    : sensor_msgs/Imu        
+             /ns1/velodyne_points              5973 msgs    : sensor_msgs/PointCloud2
+             /ns2/velodyne_points              5972 msgs    : sensor_msgs/PointCloud2
+             /tf                              15086 msgs    : tf2_msgs/TFMessage     
+             /tf_static                           1 msg     : tf2_msgs/TFMessage     
+             /vehicle/gps/fix                   597 msgs    : sensor_msgs/NavSatFix
+
+
