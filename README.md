@@ -254,7 +254,7 @@ With my (Kevin's) setup, I run one of the following commands:
 
  - Set 2 stereo: `./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/nuance_car.yaml ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/images ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/timestamps.txt dataset_car_new_stereo`
 
- - Set 2 monocular (cam0): `./Examples/Monocular/mono_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/nuance_car.yaml ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/images ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/timestamps.txt dataset_car_provided_mono`
+ - Set 2 monocular (cam0): `./Examples/Monocular/mono_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/nuance_car.yaml ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/images ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/timestamps.txt dataset_car_new_mono`
 
 
 
