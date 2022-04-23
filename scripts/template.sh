@@ -1,14 +1,30 @@
 #!/bin/bash
 
-nameUser='USERNAME'
-nameDrive='DRIVE'
-nameDataset='DATASET_NAME'
+echo "Run this from ~ or it won't work! (cd ~)"
 
-echo "Template Stereo"
+# Customize these for your dataset
+# nameUser='USERNAME'
+# nameDrive='DRIVE'
+# nameDataset='DATASET_NAME'
+# nameYaml='YOUR_YAML.yaml'
+# outputName='dataset_TEMPLATE'
 
-pathYaml='~/../../media/'$nameUser'/'$nameDrive'/DATA/'$nameDataset'/nuance_car.yaml'
-pathDataset='~/../../media/'$nameUser'/'$nameDrive'/DATA/'$nameDataset'/images'
-pathTimestamps='~/../../media/'$nameUser'/'$nameDrive'/DATA/'$nameDataset'/timestamps.txt'
-outputName='your_desired_output_dataset_name'
+# Set 2 Monocular params:
+nameUser='kevinrobb'
+nameDrive='ROBB0005/DATA'
+nameDataset='nuance_car/car_new'
+nameYaml='nuance_car.yaml'
+outputName='dataset_car_new_mono'
 
-./~/Dev/ORB_SLAM3/Examples/Stereo/stereo_euroc ~/Dev/ORB_SLAM3/Vocabulary/ORBvoc.txt "$pathYaml" "$pathDataset" "$pathTimestamps" "$outputName"
+
+pathYaml='./../../media/'$nameUser'/'$nameDrive'/'$nameDataset'/'$nameYaml
+pathDataset='./../../media/'$nameUser'/'$nameDrive'/'$nameDataset'/images'
+pathTimestamps='./../../media/'$nameUser'/'$nameDrive'/'$nameDataset'/timestamps.txt'
+pathVocab='./Dev/ORB_SLAM3/Vocabulary/ORBvoc.txt'
+
+
+# echo "Template Stereo"
+# ./~/Dev/ORB_SLAM3/Examples/Stereo/stereo_euroc "$pathVocab" "$pathYaml" "$pathDataset" "$pathTimestamps" "$outputName"
+
+echo "Template Monocular"
+./Dev/ORB_SLAM3/Examples/Monocular/mono_euroc "$pathVocab" "$pathYaml" "$pathDataset" "$pathTimestamps" "$outputName"
