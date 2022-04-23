@@ -239,22 +239,17 @@ Let's assume your external drive is called `DRIVE`, and it has a folder in its m
                   data/
                     * all the images
 
-So on the virtual machine, with the drive connected, to run ORB_SLAM3 do the following:
+So on the virtual machine, with the drive connected, you're almost ready to run ORB_SLAM3. Copy the bash script in `scripts/run_orbslam.sh` from this repository onto your virtual machine, and ensure it is executable with the command `chmod +x run_orbslam.sh`. Open it with your favorite text editor, and comment/uncomment the specified sections to set all the parameters accordingly. Then execute it:
+
+    cd ~
+    ./run_orbslam.sh
+
+
+Alternatively, if you do not wish to create the bash file and copy its contents, you can run the following commands:
 
     cd ~/Dev/ORB_SLAM3
 
     ./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/nuance_car.yaml ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/images ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/timestamps.txt your_desired_output_dataset_name
 
-where you should fill in `USERNAME`, `DRIVE`, and `DATASET_NAME` for your case. The final command line argument will be used as the filename for the frame and keyframe trajectory files produced as output by ORB_SLAM3.
-
-With my (Kevin's) setup, I run one of the following commands:
- - Set 1 stereo: `./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/nuance_car.yaml ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_provided/images ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_provided/timestamps.txt dataset_car_provided_stereo`
-
- - Set 1 monocular (cam0): `./Examples/Monocular/mono_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/nuance_car.yaml ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_provided/images ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_provided/timestamps.txt dataset_car_provided_mono`
-
- - Set 2 stereo: `./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/nuance_car.yaml ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/images ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/timestamps.txt dataset_car_new_stereo`
-
- - Set 2 monocular (cam0): `./Examples/Monocular/mono_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/nuance_car.yaml ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/images ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/timestamps.txt dataset_car_new_mono`
-
-
+where you should fill in `USERNAME`, `DRIVE`, and `DATASET_NAME` for your case. To run monocular instead of stereo, replace the first argument with `./Examples/Monocular/mono_euroc`. The final command line argument will be used as the filename for the frame and keyframe trajectory files produced as output by ORB_SLAM3.
 
