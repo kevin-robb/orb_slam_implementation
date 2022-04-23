@@ -191,55 +191,70 @@ And now run and plot the estimate compared to ground truth:
 
 Open the pdf `MH01_stereo.pdf` to see the results. This can be done with the command `evince MH01_stereo.pdf`.
 
+---
 
 # Using Our Own Data
 I've done all of this section on a separate computer running Ubuntu 20.04 with ROS Noetic, and then copied the files onto an external storage drive, which I use with my virtual machine to run ORB_SLAM3. I would recommend doing this as well, rather than installing ROS onto the VM and potentially breaking things with version conflicts.
 
 ## Converting from Rosbag to Image Set
-Since we have not setup the ROS-compatible part of ORB_SLAM3, the only input we can use is a folder of images, with a corresponding txt file of timestamps. To convert a rosbag of image data into this format, use the `image_conversion_node.py` I've created in the `setup_pkg`. Edit the node as needed to change the image topics, or the save location.
+Since we have not setup the ROS-compatible part of ORB_SLAM3, the only input we can use is a folder of images, with a corresponding .txt file of timestamps. To convert a rosbag of image data into this format, use the `image_conversion_node.py` I've created in the `setup_pkg`. **Edit the node as needed to change the image topics and the save location.**
 
-This node assumes a stereo setup, and will save images for each camera to their own directory, named by the timestamp. It ensures these timestamped names are synched, and that the timestamp itself is saved to a txt file. These are all required by ORB_SLAM3.
+This node assumes a stereo setup, and will save images for each camera to their own directory, named by the timestamp. It ensures these timestamped names are synched, and that the timestamp itself is saved to a .txt file. These are all required by ORB_SLAM3. (If your rosbag has only one camera and you wish to use it for a monocular setup, the topic and save folder need only be setup for cam0, and the node will still run fine.)
 
-Before running the node, create the directories the images will be saved to. If nothing has been changed, this can be done with
+Before running the node, create the directories the images will be saved to.In the main directory of this repository, run the following commands with the directory name corresponding to your imageset. (I've added `big_data/` to the .gitignore.)
 
-    mkdir -p big_data/car_provided/car_images/mav0/cam0/data
-    mkdir -p big_data/car_provided/car_images/mav0/cam1/data
+    mkdir -p big_data/DATASET_NAME/images/mav0/cam0/data
+    mkdir -p big_data/DATASET_NAME/images/mav0/cam1/data
 
-Also make sure to build the workspace by running `catkin_make` in the `vslam_ws` directory.
+Also make sure to build the workspace.
 
-Then we can export the images by running `roscore` in one terminal, starting the node in another terminal with `rosrun setup_pkg image_conversion_node.py`, and then replaying the rosbag in a third terminal with `rosbag play car_provided.bag`.
-Ensure your working directory is the main directory of this repository when running the node, so that the images will save correctly.
+    cd vslam_ws
+    catkin_make
+    source devel/setup.bash
+    cd ..
+
+To run this code then, use `rosrun setup_pkg image_conversion_node.py` after starting `roscore` in another terminal. With the node running, play your rosbag in a third terminal with `rosbag play car_provided.bag`.
 
 ## Stereo Rectification Parameters
 We also need to provide ORB_SLAM3 a .yaml file containing calibration parameters for the cameras. Much of this information, including the D, K, R, and P matrices, is published on the `/camera_array/cam0/camera_info` and `/camera_array/cam1/camera_info` topics, so we can get it from echoing these topics and recording an output.
 
-The .yaml file I created for the provided NUance car dataset is included in this repository as `car_provided.yaml`.
+The .yaml file I created for the provided NUance car dataset is included in this repository as `nuance_car.yaml`.
 
 ## Running ORB_SLAM3 with Our Data
 We now have everything we need to run ORB_SLAM3 with this dataset. If you performed this section on a different machine, now copy the relevant files onto an external drive to use in the virtual machine.
 
-My drive is called `ROBB0005`, and my directory structure looks like:
+Let's assume your external drive is called `DRIVE`, and it has a folder in its main directory called `DATA`. The directory structure should then look like:
 
-    ROBB0005/
-      car_provided/
-        car_provided.yaml
-        timestamps.txt
-        car_images/
-          mav0/
-            cam0/
-              data/
-                * all the images
-            cam1/
-              data/
-                * all the images
+    DRIVE/
+      DATA/
+        DATASET_NAME/
+          nuance_car.yaml
+          timestamps.txt
+            images/
+              mav0/
+                cam0/
+                  data/
+                    * all the images
+                cam1/
+                  data/
+                    * all the images
 
-So on the virtual machine, to run ORB_SLAM3 I do the following:
+So on the virtual machine, with the drive connected, to run ORB_SLAM3 do the following:
 
     cd ~/Dev/ORB_SLAM3
 
-    ./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/car_provided/car_provided.yaml ~/../../media/kevinrobb/ROBB0005/car_provided/car_images ~/../../media/kevinrobb/ROBB0005/car_provided/timestamps.txt dataset-car_provided_stereo
+    ./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/nuance_car.yaml ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/images ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/timestamps.txt your_desired_output_dataset_name
 
-We can alternatively run this in Monocular rather than Stereo, in which case only the cam0 image feed will be used.
+where you should fill in `USERNAME`, `DRIVE`, and `DATASET_NAME` for your case. The final command line argument will be used as the filename for the frame and keyframe trajectory files produced as output by ORB_SLAM3.
 
-    ./Examples/Monocular/mono_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/car_provided/car_provided.yaml ~/../../media/kevinrobb/ROBB0005/car_provided/car_images ~/../../media/kevinrobb/ROBB0005/car_provided/timestamps.txt dataset-car_provided_mono
+With my (Kevin's) setup, I run one of the following commands:
+ - Set 1 stereo: `./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/nuance_car.yaml ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_provided/images ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_provided/timestamps.txt dataset_car_provided_stereo`
+
+ - Set 1 monocular (cam0): `./Examples/Monocular/mono_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/nuance_car.yaml ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_provided/images ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_provided/timestamps.txt dataset_car_provided_mono`
+
+ - Set 2 stereo: `./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/nuance_car.yaml ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/images ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/timestamps.txt dataset_car_new_stereo`
+
+ - Set 2 monocular (cam0): `./Examples/Monocular/mono_euroc ./Vocabulary/ORBvoc.txt ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/nuance_car.yaml ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/images ~/../../media/kevinrobb/ROBB0005/DATA/nuance_car/car_new/timestamps.txt dataset_car_provided_mono`
+
+
 

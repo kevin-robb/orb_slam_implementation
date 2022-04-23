@@ -1,4 +1,5 @@
 %YAML:1.0
+# Configuration for mounted stereo cameras cam0 and cam1 on NUance autonomous car at Northeastern University.
 #--------------------
 File.version: "1.0"
 Camera.type: "PinHole"
