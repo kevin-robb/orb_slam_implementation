@@ -15,10 +15,12 @@ import cv2
 
 bridge = CvBridge()
 # Topic names.
-left_cam_topic = "/camera_array/cam0/image_raw"
+left_cam_topic = "/camera/color/image_raw"
+# left_cam_topic = "/camera_array/cam0/image_raw"
 right_cam_topic = "/camera_array/cam1/image_raw"
 # Image save location.
-images_filepath = "big_data/car_path2/"
+images_filepath = "big_data/kevin_room_2/"
+# images_filepath = "big_data/car_path2/"
 # Ensure images have time correspondance.
 timestamps = []
 cam1_index = -1
@@ -64,6 +66,10 @@ def get_cam1(msg):
 def main():
     global timestamps_file
     rospy.init_node('image_conversion_node')
+    # Tell the user to ensure they make a folder.
+    print("Run these commands first: (images will go here)")
+    print("\tmkdir -p big_data/DATASET_NAME/images/mav0/cam0/data")
+    print("\tmkdir -p big_data/DATASET_NAME/images/mav0/cam1/data")
     # Init file for timestamps.
     timestamps_file = open(images_filepath+"/timestamps.txt", "w")
     # Subscribe to the image streams.
