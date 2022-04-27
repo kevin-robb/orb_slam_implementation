@@ -6,6 +6,8 @@ Check out this link for a similar example:
 
 ![dataset_preview](https://user-images.githubusercontent.com/83112082/161122619-1058b1d1-7834-442d-bf6a-d888db4a47ef.gif)
 
+Our dataset is stored [here](https://northeastern-my.sharepoint.com/:u:/g/personal/robb_k_northeastern_edu/EfVkYY2cSmlIiCkSuT247QMBETdgZRNImgGfML5tXcE2yA?e=ZqOMIn). You must be logged in with a Northeastern University account to view and download it.
+
 # ORB-SLAM-3 Setup
 
 You will have the best chance of ORB SLAM 3 working if you follow these directions exactly, including using a fresh Ubuntu 20.04 install on a newly created virtual machine.
