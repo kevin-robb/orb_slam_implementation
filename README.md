@@ -199,28 +199,16 @@ Open the pdf `MH01_stereo.pdf` to see the results. This can be done with the com
 I've done all of this section on a separate computer running Ubuntu 20.04 with ROS Noetic, and then copied the files onto an external storage drive, which I use with my virtual machine to run ORB_SLAM3. I would recommend doing this as well, rather than installing ROS onto the VM and potentially breaking things with version conflicts.
 
 ## Converting from Rosbag to Image Set
-Since we have not setup the ROS-compatible part of ORB_SLAM3, the only input we can use is a folder of images, with a corresponding .txt file of timestamps. To convert a rosbag of image data into this format, use the `image_conversion_node.py` I've created in the `setup_pkg`. **Edit the node as needed to change the image topics and the save location.**
+Since we have not setup the ROS-compatible part of ORB_SLAM3, the only input we can use is a folder of images, with a corresponding .txt file of timestamps. To convert a rosbag of image data into this format, use the `convert_images.py` script I've created. It will work for both monocular and stereo cameras. It's setup with the topics for a RealSense D435 monocular camera and stereo images from the NUance autonomous car, but additional modes can be easily added to the `cam_types` dictionary in `main()` of this script. Run it by executing each of the following commands in a separate terminal:
 
-This node assumes a stereo setup, and will save images for each camera to their own directory, named by the timestamp. It ensures these timestamped names are synched, and that the timestamp itself is saved to a .txt file. These are all required by ORB_SLAM3. (If your rosbag has only one camera and you wish to use it for a monocular setup, the topic and save folder need only be setup for cam0, and the node will still run fine.)
+    roscore
+    python3 scripts/convert_images.py DATASET_NAME CAM_TYPE
+    rosbag play ROSBAG_NAME.bag
 
-Before running the node, create the directories the images will be saved to.In the main directory of this repository, run the following commands with the directory name corresponding to your imageset. (I've added `big_data/` to the .gitignore.)
+Here `DATASET_NAME` will be the name of the resulting folder, which will be created automatically in your `~` directory.
 
-    mkdir -p big_data/DATASET_NAME/images/mav0/cam0/data
-    mkdir -p big_data/DATASET_NAME/images/mav0/cam1/data
-
-Also make sure to build the workspace.
-
-    cd vslam_ws
-    catkin_make
-    source devel/setup.bash
-    cd ..
-
-To run this code then, use `rosrun setup_pkg image_conversion_node.py` after starting `roscore` in another terminal. With the node running, play your rosbag in a third terminal with `rosbag play car_provided.bag`.
-
-## Stereo Rectification Parameters
-We also need to provide ORB_SLAM3 a .yaml file containing calibration parameters for the cameras. Much of this information, including the D, K, R, and P matrices, is published on the `/camera_array/cam0/camera_info` and `/camera_array/cam1/camera_info` topics, so we can get it from echoing these topics and recording an output.
-
-The .yaml file I created for the provided NUance car dataset is included in this repository as `nuance_car.yaml`.
+## Config and Stereo Rectification Parameters
+We also need to provide ORB_SLAM3 a .yaml file containing calibration parameters for the cameras. Much of this information for the NUance data, including the D, K, R, and P matrices, is published on the `/camera_array/cam0/camera_info` and `/camera_array/cam1/camera_info` topics, so we can get it from echoing these topics and recording an output. The .yaml file I created for the car data is `config/nuance_car.yaml`. I've also created a .yaml for the RealSense camera at `config/realsense.yaml`.
 
 ## Running ORB_SLAM3 with Our Data
 We now have everything we need to run ORB_SLAM3 with this dataset. If you performed this section on a different machine, now copy the relevant files onto an external drive to use in the virtual machine.
@@ -230,16 +218,13 @@ Let's assume your external drive is called `DRIVE`, and it has a folder in its m
     DRIVE/
       DATA/
         DATASET_NAME/
-          nuance_car.yaml
+          CONFIG.yaml
           timestamps.txt
-            images/
-              mav0/
-                cam0/
-                  data/
-                    * all the images
-                cam1/
-                  data/
-                    * all the images
+            images/mav0/
+              cam0/data/
+                * all the left images
+              cam1/data/
+                * all the right images
 
 So on the virtual machine, with the drive connected, you're almost ready to run ORB_SLAM3. Copy the bash script in `scripts/run_orbslam.sh` from this repository onto your virtual machine, and ensure it is executable with the command `chmod +x run_orbslam.sh`. Open it with your favorite text editor, and comment/uncomment the specified sections to set all the parameters accordingly. Then execute it:
 
@@ -251,7 +236,16 @@ Alternatively, if you do not wish to create the bash file and copy its contents,
 
     cd ~/Dev/ORB_SLAM3
 
-    ./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/nuance_car.yaml ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/images ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/timestamps.txt your_desired_output_dataset_name
+    ./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/CONFIG.yaml ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/images ~/../../media/USERNAME/DRIVE/DATA/DATASET_NAME/timestamps.txt your_desired_output_dataset_name
 
-where you should fill in `USERNAME`, `DRIVE`, and `DATASET_NAME` for your case. To run monocular instead of stereo, replace the first argument with `./Examples/Monocular/mono_euroc`. The final command line argument will be used as the filename for the frame and keyframe trajectory files produced as output by ORB_SLAM3.
+where you should fill in `USERNAME`, `DRIVE`, `DATASET_NAME`, and `CONFIG` for your case. To run monocular instead of stereo, replace the first argument with `./Examples/Monocular/mono_euroc`. The final command line argument will be used as part of the filename for the frame and keyframe trajectory files produced as output by ORB_SLAM3.
 
+---
+
+# Demos
+I've used the contents of this repository to run ORB_SLAM3 on a variety of datasets I collected, as well as some of the demos. Videos of these are available on my [YouTube channel](https://www.youtube.com/channel/UCdxoB6xJBsmmi0iUU0E_yRA).
+
+Some of these include:
+ - [EuRoC example dataset](https://www.youtube.com/watch?v=mtbg8G4CSyw&t=180s) - Success
+ - [NUance car dataset](https://www.youtube.com/watch?v=9lwM9MTMCQo&t=596s) - Failure
+ - [RealSense small room dataset](https://www.youtube.com/watch?v=VOHloE1mnos) - Success
