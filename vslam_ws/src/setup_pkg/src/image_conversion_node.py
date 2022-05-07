@@ -1,26 +1,18 @@
 #! /usr/bin/python3
 
-# Node for extracting images from a rosbag in the
-# format needed for ORB_SLAM3.
-# Run these commands first: (images will go here)
-#   mkdir -p big_data/DATASET_NAME/images/mav0/cam0/data
-#   mkdir -p big_data/DATASET_NAME/images/mav0/cam1/data
-
+# Node for extracting images from a rosbag in the format needed for ORB_SLAM3.
 # Referenced https://answers.ros.org/question/283724/saving-images-with-image_saver-with-timestamp/
 
 import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
+import subprocess
+import sys
 
 bridge = CvBridge()
-# Topic names.
-left_cam_topic = "/camera/color/image_raw"
-# left_cam_topic = "/camera_array/cam0/image_raw"
-right_cam_topic = "/camera_array/cam1/image_raw"
-# Image save location.
-images_filepath = "big_data/kevin_room_2/"
-# images_filepath = "big_data/car_path2/"
+# folder name for dataset
+IMAGES_PATH = None
 # Ensure images have time correspondance.
 timestamps = []
 cam1_index = -1
@@ -34,48 +26,68 @@ def get_cam0(msg):
     timestamps_file.write(str(time)+"\n")
     try:
         # Convert the Image msg to OpenCV2 object.
-        cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8") #bgr8
+        cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
         # Save image with time as name.
-        cv2.imwrite(images_filepath+"images/mav0/cam0/data/"+str(time)+'.png', cv2_img)
-        # rospy.sleep(0.05)
+        cv2.imwrite(IMAGES_PATH+"images/mav0/cam0/data/"+str(time)+'.png', cv2_img)
     except:
-        print("Exception encountered on cam0.")
+        rospy.logerr("Exception encountered on cam0.")
 
 def get_cam1(msg):
     global cam1_index
     # use the time from cam0.
     cam1_index += 1
-    # wait if necessary until cam0 has come in.
+    # wait if necessary until cam0 has come in for this timestep.
     time = None
     while len(timestamps)-1 < cam1_index:
         rospy.sleep(0.05)
     try:
         time = timestamps[cam1_index]
     except:
-        print(len(timestamps), cam1_index)
+        rospy.logerr("cam1 unable to sync with cam0 at timestamp "+str(len(timestamps))+", index "+str(cam1_index))
     
     try:
         # Convert the Image msg to OpenCV2 object.
-        cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8") #bgr8
+        cv2_img = bridge.imgmsg_to_cv2(msg, "bgr8")
         # Save image with time as name.
-        cv2.imwrite(images_filepath+"images/mav0/cam1/data/"+str(time)+'.png', cv2_img)
-        # rospy.sleep(0.05)
+        cv2.imwrite(IMAGES_PATH+"images/mav0/cam1/data/"+str(time)+'.png', cv2_img)
     except:
-        print("Exception encountered on cam1.")
+        rospy.logerr("Exception encountered on cam1.")
+
+def run_bash_cmd(command:str):
+    # run something on the command line.
+    process = subprocess.Popen(command.split())
+    output, error = process.communicate()
 
 def main():
-    global timestamps_file
+    global timestamps_file, IMAGES_PATH
     rospy.init_node('image_conversion_node')
-    # Tell the user to ensure they make a folder.
-    print("Run these commands first: (images will go here)")
-    print("\tmkdir -p big_data/DATASET_NAME/images/mav0/cam0/data")
-    print("\tmkdir -p big_data/DATASET_NAME/images/mav0/cam1/data")
+
+    # get the dataset name and topics from cmd line params.
+    if len(sys.argv) > 2:
+        DATASET_NAME = sys.argv[1]
+        LEFT_CAM_TOPIC = sys.argv[2]
+    else:
+        rospy.logerr("Must provide DATASET_NAME and LEFT_CAM_TOPIC params.")
+        exit()
+    # right cam is optional, and is unused for monocular setups.
+    RIGHT_CAM_TOPIC = sys.argv[3] if len(sys.argv) > 3 else "/NONE"
+
+    # create the folder images will be saved to. starts from ~/.ros
+    IMAGES_PATH = "../Coursework/eece5554-vslam/big_data/"+DATASET_NAME
+    run_bash_cmd("mkdir -p "+IMAGES_PATH+"/images/mav0/cam0/data")
+    run_bash_cmd("mkdir -p "+IMAGES_PATH+"/images/mav0/cam1/data")
+    rospy.loginfo("Images will be saved to "+IMAGES_PATH+"/images")
     # Init file for timestamps.
-    timestamps_file = open(images_filepath+"/timestamps.txt", "w")
+    timestamps_file = open(IMAGES_PATH+"/timestamps.txt", "w")
+    
     # Subscribe to the image streams.
-    rospy.Subscriber(left_cam_topic, Image, get_cam0)
-    rospy.Subscriber(right_cam_topic, Image, get_cam1)
+    rospy.Subscriber(LEFT_CAM_TOPIC, Image, get_cam0)
+    rospy.Subscriber(RIGHT_CAM_TOPIC, Image, get_cam1)
     rospy.spin()
 
+
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        pass
