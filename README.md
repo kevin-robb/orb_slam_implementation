@@ -1,20 +1,16 @@
-# eece5554-vslam
-Final group project for EECE-5554 Robotics Sensing &amp; Navigation, involving Visual SLAM using data from the NUANCE autonomous car.
-<!-- 
-Check out this link for a similar example:
-[Monocular Visual Odometry using OpenCV](https://avisingh599.github.io/vision/monocular-vo/) -->
+This was a final project for EECE-5554: Robotics Sensing &amp; Navigation at Northeastern University, in which we implemented and used ORB_SLAM3 to perform Visual SLAM on a variety of data we collected ourselves, including data recorded with the NUance autonomous car. **However, this guide is completely general and can be used by anyone to collect data and process it using ORB_SLAM3.**
 
 ![dataset_preview](https://user-images.githubusercontent.com/83112082/161122619-1058b1d1-7834-442d-bf6a-d888db4a47ef.gif)
 
-Our dataset is stored [here](https://northeastern-my.sharepoint.com/:u:/g/personal/robb_k_northeastern_edu/EfVkYY2cSmlIiCkSuT247QMBETdgZRNImgGfML5tXcE2yA?e=ZqOMIn). You must be logged in with a Northeastern University account to view and download it.
+Our NUance car dataset is stored [here](https://northeastern-my.sharepoint.com/:u:/g/personal/robb_k_northeastern_edu/EfVkYY2cSmlIiCkSuT247QMBETdgZRNImgGfML5tXcE2yA?e=ZqOMIn). You must be logged in with a Northeastern University account to view and download it. 
 
 # ORB-SLAM-3 Setup
 
 You will have the best chance of ORB SLAM 3 working if you follow these directions exactly, including using a fresh Ubuntu 20.04 install on a newly created virtual machine.
 
-Ensure your machine has at least 16GB of RAM.
+Ensure your machine has at least 16GB of RAM and 4 cores. 32GB of RAM is recommended.
 
-Install the [VMware Workstation Player](https://www.vmware.com/hk/products/workstation-player.html) virtual machine. I did this on my Windows desktop PC. During setup, customize the hardware to use the max amount of recommended RAM, and 4 processor cores.
+Install the [VMware Workstation Player](https://www.vmware.com/hk/products/workstation-player.html) virtual machine. I did this on my Windows 10 desktop PC. During setup, customize the hardware to use the max amount of recommended RAM, and 4 processor cores. Whenever you're running the VM, kill everything else running on the PC to allow as much RAM to be used by ORB_SLAM3 as possible.
 
 Download the [Ubuntu 20.04 iso](https://ubuntu.com/download/desktop).
 
@@ -248,4 +244,5 @@ I've used the contents of this repository to run ORB_SLAM3 on a variety of datas
 Some of these include:
  - [EuRoC example dataset](https://www.youtube.com/watch?v=mtbg8G4CSyw&t=180s) - Success
  - [NUance car dataset](https://www.youtube.com/watch?v=9lwM9MTMCQo&t=596s) - Failure
- - [RealSense small room dataset](https://www.youtube.com/watch?v=VOHloE1mnos) - Success
+ - [RealSense small room](https://www.youtube.com/watch?v=VOHloE1mnos) - Success
+ - [RealSense outdoor repeating environment](https://www.youtube.com/watch?v=EX5d3sjTI0w&list=PLQp5kRKQrSVYwbofYIjS4bbODDIJR0RMU&index=1) - Success
